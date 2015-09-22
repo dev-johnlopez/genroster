@@ -138,14 +138,12 @@ class AnalyticsView(BaseView):
 
 
     	all_combinations = combos
-        print all_combinations
     	print "Combinations Created - %s" % len(all_combinations)
     	rosters = []
         for item in all_combinations:
             cur_salary = item[0][0].salary + item[1][0].salary + item[1][1].salary + item[2][0].salary + item[2][1].salary + item[2][2].salary + item[3][0].salary + item[4][0].salary + item[5][0].salary
             print cur_salary
             if cur_salary <= 60000:
-                print "In roster append"
                 fppg = 0
                 fppg += item[0][0].fppg
                 fppg += item[1][0].fppg + item[1][1].fppg
