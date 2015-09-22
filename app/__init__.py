@@ -83,19 +83,19 @@ class AnalyticsView(BaseView):
 
         print "Created RB Combos - %s" % len(rb)
         wr = list(itertools.combinations(wrs, 3))
-        valid_wr_combos = []
-        for index, wr_combo in enumerate(wr):
-            if wr_combo[0].team != wr_combo[1].team:
-                if wr_combo[2].team != wr_combo[0].team:
-                    valid_wr_combos.append([wr_combo[0].fppg + wr_combo[1].fppg + wr_combo[2].fppg, wr_combo])
+        #valid_wr_combos = []
+        #for index, wr_combo in enumerate(wr):
+        #    if wr_combo[0].team != wr_combo[1].team:
+        #        if wr_combo[2].team != wr_combo[0].team:
+        #            valid_wr_combos.append([wr_combo[0].fppg + wr_combo[1].fppg + wr_combo[2].fppg, wr_combo])
             #print wr_combo[0].fppg + wr_combo[1].fppg + wr_combo[2].fppg
-        total_combos = sorted(valid_wr_combos, key=lambda combo: combo[0], reverse=True)
-        remaining_wr_combos = []
-        for index, combo in enumerate(total_combos):
-            if index < len(total_combos)/3:
-                remaining_wr_combos.append(combo[1])
-                #print combo
-        wr = remaining_wr_combos
+        #total_combos = sorted(valid_wr_combos, key=lambda combo: combo[0], reverse=True)
+        #remaining_wr_combos = []
+        #for index, combo in enumerate(total_combos):
+        #    if index < len(total_combos)/3:
+        #        remaining_wr_combos.append(combo[1])
+        #        #print combo
+        #wr = remaining_wr_combos
 
         print "Created WR Combos - %s" % len(wr)
         te = list(itertools.combinations(tes, 1))
@@ -142,9 +142,7 @@ class AnalyticsView(BaseView):
     	print "Combinations Created - %s" % len(all_combinations)
     	rosters = []
         for item in all_combinations:
-            roster_allowed = True
-            cur_salary = 0
-            cur_salary += item[0][0].salary + item[1][0].salary + item[1][1].salary + item[2][0].salary + item[2][1].salary + item[2][2].salary + item[3][0].salary + item[4][0].salary + item[5][0].salary
+            cur_salary = item[0][0].salary + item[1][0].salary + item[1][1].salary + item[2][0].salary + item[2][1].salary + item[2][2].salary + item[3][0].salary + item[4][0].salary + item[5][0].salary
             print cur_salary
             if cur_salary <= 60000:
                 print "In roster append"
