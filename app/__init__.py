@@ -155,7 +155,7 @@ class AnalyticsView(BaseView):
                 fppg += item[5][0].fppg
                 rosters.append([item[0][0], item[1][0], item[1][1], item[2][0], item[2][1], item[2][2], item[3][0], item[4][0], item[5][0], fppg])
         sorted_rosters = sorted(rosters, key=lambda combo: combo[9], reverse=True)
-        return self.render('analytics_index.html', rosters=[sorted_rosters])
+        return self.render('analytics_index.html', rosters=[sorted_rosters[:25]])
 
 class ImportView(BaseView):
     @expose('/')
