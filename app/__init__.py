@@ -34,61 +34,151 @@ admin.add_view(ModelView(Team, db.session))
 class AnalyticsView(BaseView):
     @expose('/')
     def index(self):
-    	#QBs = Player.query.filter(position='QB')).all()
-    	#RBs = Player.query.filter(position='RB')).all()
-    	#WRs = Player.query.filter(position='WR')).all()
-    	#TEs = Player.query.filter(position='TE')).all()
-    	#Ks = Player.query.filter(position='K')).all()
-    	#Ds = Team.query.filter.all()
-    	players = Player.query.all()
-    	teams = Team.query.all()
-    	positions = players
-    	for team in teams:
-    		positions.append(team)
-    	print "Creating Combinations"
-    	all_combinations = list(itertools.combinations(positions, 5))
+    	QBs = list(Player.query.filter_by(position='QB').all())
+        qbs = list(filter((lambda player: player.starting == True), QBs))
+        print "QB Sorted Length: %s" % len(qbs)
+    	RBs = list(Player.query.filter_by(position='RB').all())
+        rbs = list(filter((lambda player: player.starting == True), RBs))
+        print "RB Sorted Length: %s" % len(rbs)
+    	WRs = list(Player.query.filter_by(position='WR').all())
+        wrs = list(filter((lambda player: player.starting == True), WRs))
+        print "WR Sorted Length: %s" % len(wrs)
+    	TEs = list(Player.query.filter_by(position='TE').all())
+        tes = list(filter((lambda player: player.starting == True), TEs))
+        print "TE Sorted Length: %s" % len(tes)
+    	Ks = list(Player.query.filter_by(position='K').all())
+        ks = list(filter((lambda player: player.starting == True), Ks))
+        print "K Sorted Length: %s" % len(ks)
+    	ds = list(Player.query.filter_by(position='D').all())
+        print "D Sorted Length: %s" % len(ds)
+
+        #QBs = list(Player.query.filter((Player.position == 'QB') and (Player.injury_ind == '')))
+        #RBs = list(Player.query.filter((Player.position == 'RB') and (Player.injury_ind == '')))
+        ##WRs = list(Player.query.filter_by(position = 'WR', injury_ind = ''))
+        #TEs = list(Player.query.filter((Player.position == 'TE') and (Player.injury_ind == '')))
+        #Ks = list(Player.query.filter((Player.position == 'K') and (Player.injury_ind == '')))
+        #Ds = list(Player.query.filter_by(position='D').all())
+    	#players = Player.query.all()
+    	#teams = Team.query.all()
+    	#positions = players
+    	#for team in teams:
+    	#	positions.append(team)
+        qb = list(itertools.combinations(qbs, 1))
+    	print "Created QB Combos - %s" % len(qb)
+        rb = list(itertools.combinations(rbs, 2))
+        
+        #valid_rb_combos = []
+        #for rb_combo in rb:
+        #    if rb_combo[0].team != rb_combo[1].team:
+        #        valid_rb_combos.append([rb_combo[0].fppg + rb_combo[1].fppg, rb_combo])
+
+        #total_combos = sorted(valid_rb_combos, key=lambda combo: combo[0], reverse=True)
+        #remaining_rb_combos = []
+        #for index, combo in enumerate(total_combos):
+        #    if index < len(total_combos)/3:
+        #        remaining_rb_combos.append(combo[1])
+                #print combo
+
+        #rb = remaining_rb_combos
+
+        print "Created RB Combos - %s" % len(rb)
+        wr = list(itertools.combinations(wrs, 3))
+        valid_wr_combos = []
+        for index, wr_combo in enumerate(wr):
+            if wr_combo[0].team != wr_combo[1].team:
+                if wr_combo[2].team != wr_combo[0].team:
+                    valid_wr_combos.append([wr_combo[0].fppg + wr_combo[1].fppg + wr_combo[2].fppg, wr_combo])
+            #print wr_combo[0].fppg + wr_combo[1].fppg + wr_combo[2].fppg
+        total_combos = sorted(valid_wr_combos, key=lambda combo: combo[0], reverse=True)
+        remaining_wr_combos = []
+        for index, combo in enumerate(total_combos):
+            if index < len(total_combos)/3:
+                remaining_wr_combos.append(combo[1])
+                #print combo
+        wr = remaining_wr_combos
+
+        print "Created WR Combos - %s" % len(wr)
+        te = list(itertools.combinations(tes, 1))
+        print "Created TE Combos - %s" % len(te)
+        k = list(itertools.combinations(ks, 1))
+        print "Created K Combos - %s" % len(k)
+        d = list(itertools.combinations(ds, 1))
+        print "Created D Combos - %s" % len(d)
+        combine_lists = [qb, rb, wr, te, k, d]
+        combos = list(itertools.product(*combine_lists))
+        print "combos created"
+
+        print len(qb) * len(rb) * len(wr) * len(te) * len(k) * len(d)
+
+
+
+        #for item in wr:
+        #    print item
+        #for q in qb:
+        #    for r in rb:
+        #        for w in wr:
+        #            for t in te:
+        #                for kicker in k:
+        #                    for defense in d:
+        #                        #print roster_num
+        #                        roster_num += 1
+        #                        roster = [q, r, w, t, kicker, defense]
+        #                        print roster
+        #                        possible_rosters.append(roster)
+       # print wrs
+        #possible_rosters = []
+        #for qb in QBs:
+        #    roster = []
+        #    cur_salary = 0
+        #    roster.append(qb)
+        #    cur_salary = qb.salary
+        #    for rb_tuple in rbs:
+        #        for rb in rb_tuple:
+        #            cur_salary += rb.salary
+
+
+    	all_combinations = combos
+        print all_combinations
     	print "Combinations Created - %s" % len(all_combinations)
     	rosters = []
-    	for item in all_combinations:
-    		roster_allowed = True
-    		if len(filter((lambda roster_spot: roster_spot.position == "QB"), item)) != 1:
-    			roster_allowed = False
-    		if len(filter((lambda roster_spot: roster_spot.position == "RB"), item)) != 2:
-    			roster_allowed = False
-    		if len(filter((lambda roster_spot: roster_spot.position == "WR"), item)) != 3:
-    			roster_allowed = False
-    		if len(filter((lambda roster_spot: roster_spot.position == "TE"), item)) != 1:
-    			roster_allowed = False
-    		if len(filter((lambda roster_spot: roster_spot.position == "K"), item)) != 1:
-    			roster_allowed = False
-    		if len(filter((lambda roster_spot: roster_spot.position == "D"), item)) != 1:
-    			roster_allowed = False
-    		cur_salary = 0
-    		for position in item:
-    			cur_salary += position.salary
-    		if cur_salary > 60000:
-    			roster_allowed = False
-    		if roster_allowed:
-    			rosters.append(item)
-
-        return self.render('analytics_index.html', rosters=rosters)
+        for item in all_combinations:
+            roster_allowed = True
+            cur_salary = 0
+            cur_salary += item[0][0].salary + item[1][0].salary + item[1][1].salary + item[2][0].salary + item[2][1].salary + item[2][2].salary + item[3][0].salary + item[4][0].salary + item[5][0].salary
+            print cur_salary
+            if cur_salary <= 60000:
+                print "In roster append"
+                fppg = 0
+                fppg += item[0][0].fppg
+                fppg += item[1][0].fppg + item[1][1].fppg
+                fppg += item[2][0].fppg + item[2][1].fppg + item[2][2].fppg
+                fppg += item[3][0].fppg
+                fppg += item[4][0].fppg
+                fppg += item[5][0].fppg
+                rosters.append([item[0][0], item[1][0], item[1][1], item[2][0], item[2][1], item[2][2], item[3][0], item[4][0], item[5][0], fppg])
+        sorted_rosters = sorted(rosters, key=lambda combo: combo[9], reverse=True)
+        return self.render('analytics_index.html', rosters=[sorted_rosters])
 
 class ImportView(BaseView):
-	@expose('/')
-	def index(self):
-		return self.render('import_players.html')
+    @expose('/')
+    def index(self):
+        return self.render('import_players.html')
 
-	@expose('/players', methods=('GET', 'POST',))
-	def doimport(self):
-		if request.method == 'POST':
-			def player_init_func(row):
-				p = Player(row['First Name'], row['Last Name'], row['Position'], row['FPPG'], row['Played'], row['Salary'], row['Injury Indicator'], row['Injury Details'])
-				return p
-			request.save_book_to_database(field_name='file', session=db.session,
+    @expose('/players', methods=('GET', 'POST',))
+    def doimport(self):
+        if request.method == 'POST':
+            players = Player.query.all()
+            for player in players:
+                print "Deleting %s" % player
+                db.session.delete(player)
+                db.session.commit()    
+            def player_init_func(row):
+                p = Player(row['First Name'], row['Last Name'], row['Position'], row['FPPG'], row['Played'], row['Salary'], row['Injury Indicator'], row['Injury Details'], row['Play'], row['Team'])
+                return p
+            request.save_book_to_database(field_name='file', session=db.session,
                                       tables=[Player],
                                       initializers=([player_init_func]))
-        
-		return self.render('success.html')
+        return self.render('success.html')
 
 admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics'))
 admin.add_view(ImportView(name='Import', endpoint='import'))

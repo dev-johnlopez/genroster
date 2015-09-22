@@ -15,9 +15,11 @@ class Player(db.Model):
 	salary = db.Column(db.Integer)
 	injury_ind = db.Column(db.String(2), nullable=True, server_default='')
 	injury_details = db.Column(db.String(255), nullable=True, server_default='')
-	team_id = db.Column(db.Integer, db.ForeignKey('Team.id'))
+	team = db.Column(db.String(3), nullable=True, server_default='')
+	#team_id = db.Column(db.Integer, db.ForeignKey('Team.id'))
+	starting = db.Column(db.Boolean)
 
-	def __init__(self, first_name, last_name, position, fppg, played, salary, injury_ind, injury_details):
+	def __init__(self, first_name, last_name, position, fppg, played, salary, injury_ind, injury_details, starting, team):
 		self.first_name = first_name
 		self.last_name = last_name
 		self.position = position
@@ -26,15 +28,20 @@ class Player(db.Model):
 		self.salary = salary
 		self.injury_ind = injury_ind
 		self.injury_details = injury_details
+		if starting == "Y":
+			self.starting = True
+		else:
+			self.starting = False
+		self.team = team
 
 	def __repr__(self):
-		return '%r' % (self.name)
+		return '%s %s' % (self.first_name, self.last_name)
 
 class Team(db.Model):
 	__tablename__ = 'Team'
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(255), nullable=False, server_default='')
-	players = db.relationship("Player", backref="team")
+	#players = db.relationship("Player", backref="team")
 
 	def __repr__(self):
 		return '%r' % (self.name)
