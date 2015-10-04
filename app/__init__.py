@@ -49,7 +49,8 @@ class AnalyticsView(BaseView):
     	Ks = list(Player.query.filter_by(position='K').all())
         ks = list(filter((lambda player: player.starting == True), Ks))
         print "K Sorted Length: %s" % len(ks)
-    	ds = list(Player.query.filter_by(position='D').all())
+    	Ds = list(Player.query.filter_by(position='D').all())
+        ds = list(filter((lambda player: player.starting == True), Ds))
         print "D Sorted Length: %s" % len(ds)
 
         #QBs = list(Player.query.filter((Player.position == 'QB') and (Player.injury_ind == '')))
@@ -142,18 +143,36 @@ class AnalyticsView(BaseView):
     	rosters = []
         for item in all_combinations:
             cur_salary = item[0][0].salary + item[1][0].salary + item[1][1].salary + item[2][0].salary + item[2][1].salary + item[2][2].salary + item[3][0].salary + item[4][0].salary + item[5][0].salary
-            print cur_salary
             if cur_salary <= 60000:
                 fppg = 0
-                fppg += item[0][0].fppg
-                fppg += item[1][0].fppg + item[1][1].fppg
-                fppg += item[2][0].fppg + item[2][1].fppg + item[2][2].fppg
-                fppg += item[3][0].fppg
-                fppg += item[4][0].fppg
-                fppg += item[5][0].fppg
-                rosters.append([item[0][0], item[1][0], item[1][1], item[2][0], item[2][1], item[2][2], item[3][0], item[4][0], item[5][0], fppg])
+                fppg += item[0][0].getCalculatedFPPG()
+                fppg += item[1][0].getCalculatedFPPG() + item[1][1].getCalculatedFPPG()
+                fppg += item[2][0].getCalculatedFPPG() + item[2][1].getCalculatedFPPG() + item[2][2].getCalculatedFPPG()
+                fppg += item[3][0].getCalculatedFPPG()
+                fppg += item[4][0].getCalculatedFPPG()
+                fppg += item[5][0].getCalculatedFPPG()
+                rosters.append([item[0][0], item[1][0], item[1][1], item[2][0], item[2][1], item[2][2], item[3][0], item[4][0], item[5][0], fppg, cur_salary])
         sorted_rosters = sorted(rosters, key=lambda combo: combo[9], reverse=True)
         return self.render('analytics_index.html', rosters=[sorted_rosters[:25]])
+
+class ValueView(BaseView):
+    @expose('/')
+    def index(self):
+        QBs = list(Player.query.filter_by(position='QB').all())
+        RBs = list(Player.query.filter_by(position='RB').all())
+        WRs = list(Player.query.filter_by(position='WR').all())
+        TEs = list(Player.query.filter_by(position='TE').all())
+        Ks = list(Player.query.filter_by(position='K').all())
+        Ds = list(Player.query.filter_by(position='D').all())
+
+        players = Player.query.all()
+        value_calc = []
+
+        for player in players:
+            value_calc.append([player.first_name + " " + player.last_name, player.fppg/player.salary, player.getCalculatedFPPG()/player.salary])
+        value_players = sorted(value_calc, key=lambda player: player[1], reverse=True)
+        
+        return self.render('value.html', value_players=value_players)
 
 class ImportView(BaseView):
     @expose('/')
@@ -169,7 +188,7 @@ class ImportView(BaseView):
                 db.session.delete(player)
                 db.session.commit()    
             def player_init_func(row):
-                p = Player(row['First Name'], row['Last Name'], row['Position'], row['FPPG'], row['Played'], row['Salary'], row['Injury Indicator'], row['Injury Details'], row['Play'], row['Team'])
+                p = Player(row['First Name'], row['Last Name'], row['Position'], row['FPPG'], row['Played'], row['Salary'], row['Injury Indicator'], row['Injury Details'], row['Play'], row['Team'], row['Human'])
                 return p
             request.save_book_to_database(field_name='file', session=db.session,
                                       tables=[Player],
@@ -178,6 +197,7 @@ class ImportView(BaseView):
 
 admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics'))
 admin.add_view(ImportView(name='Import', endpoint='import'))
+admin.add_view(ValueView(name='Value', endpoint='value'))
 
 from app import views
 
@@ -213,3 +233,10 @@ app.jinja_env.globals['static'] = (
 app.jinja_env.globals['f_static'] = (
     lambda filename: url_for('static', filename = filename)
 )
+
+@app.errorhandler(500)
+def internal_error(error):
+    print "%s" % error
+    app.logger.info(error)
+    db.session.rollback()
+    return render_template('static/500.html', error=error), 500
