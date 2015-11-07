@@ -1,8 +1,14 @@
 {% extends 'admin/master.html' %}
 {% block body %}
-  
+  <a href="{{ qb_url }}">QB Rankings</a> <br />
+  <a href="{{ rb_url }}">RB Rankings</a> <br />
+  <a href="{{ wr_url }}">WR Rankings</a> <br />
+  <a href="{{ te_url }}">TE Rankings</a> <br />
+  <a href="{{ k_url }}">K Rankings</a> <br />
+  <a href="{{ d_url }}">D Rankings</a> <br />
   	<table class="table">
   		<thead>
+        <th>Ranking</th>
   			<th>Name</th>
   			<th>FPPG/Salary</th>
   			<th>Differential/Salary</th>
@@ -10,6 +16,7 @@
   		<tbody>
   				{% for player_info in value_players %}
   				<tr>
+            <td>{{ loop.index }}</td>
   					<td>{{ player_info[0] }}</td>
   					<td>{{ player_info[1] }}</td>
   					<td>{{ player_info[2] }}</td>

@@ -158,12 +158,13 @@ class AnalyticsView(BaseView):
 class ValueView(BaseView):
     @expose('/')
     def index(self):
-        QBs = list(Player.query.filter_by(position='QB').all())
-        RBs = list(Player.query.filter_by(position='RB').all())
-        WRs = list(Player.query.filter_by(position='WR').all())
-        TEs = list(Player.query.filter_by(position='TE').all())
-        Ks = list(Player.query.filter_by(position='K').all())
-        Ds = list(Player.query.filter_by(position='D').all())
+        print 'test1'
+        qb_url = url_for('.get_position', position="QB")
+        rb_url = url_for('.get_position', position="RB")
+        wr_url = url_for('.get_position', position="WR")
+        te_url = url_for('.get_position', position="TE")
+        k_url = url_for('.get_position', position="K")
+        d_url = url_for('.get_position', position="D")
 
         players = Player.query.all()
         value_calc = []
@@ -172,7 +173,35 @@ class ValueView(BaseView):
             value_calc.append([player.first_name + " " + player.last_name, player.fppg/player.salary, player.getCalculatedFPPG()/player.salary])
         value_players = sorted(value_calc, key=lambda player: player[1], reverse=True)
         
-        return self.render('value.html', value_players=value_players)
+        return self.render('value.html', value_players=value_players, qb_url=qb_url, 
+                                                                        rb_url=rb_url,
+                                                                        wr_url=wr_url,
+                                                                        te_url=te_url,
+                                                                        k_url=k_url,
+                                                                        d_url=d_url)
+
+    @expose('/<position>')
+    def get_position(self, position):
+        qb_url = url_for('.get_position', position="QB")
+        rb_url = url_for('.get_position', position="RB")
+        wr_url = url_for('.get_position', position="WR")
+        te_url = url_for('.get_position', position="TE")
+        k_url = url_for('.get_position', position="K")
+        d_url = url_for('.get_position', position="D")
+        
+        players = Player.query.filter_by(position=str(position)).all()
+        value_calc = []
+
+        for player in players:
+            value_calc.append([player.first_name + " " + player.last_name, player.fppg/player.salary, player.getCalculatedFPPG()/player.salary])
+        value_players = sorted(value_calc, key=lambda player: player[1], reverse=True)
+        
+        return self.render('value.html', value_players=value_players, qb_url=qb_url, 
+                                                                        rb_url=rb_url,
+                                                                        wr_url=wr_url,
+                                                                        te_url=te_url,
+                                                                        k_url=k_url,
+                                                                        d_url=d_url)
 
 class ImportView(BaseView):
     @expose('/')
@@ -197,7 +226,7 @@ class ImportView(BaseView):
 
 admin.add_view(AnalyticsView(name='Analytics', endpoint='analytics'))
 admin.add_view(ImportView(name='Import', endpoint='import'))
-admin.add_view(ValueView(name='Value', endpoint='value'))
+admin.add_view(ValueView(name='Value Rankings', endpoint='value'))
 
 from app import views
 
